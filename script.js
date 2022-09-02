@@ -1,11 +1,9 @@
 const canvas = document.getElementById('canvas');
-const app = new PIXI.Application({
-	width: 400,
-	height: 300,
-	view: canvas
-});
+const canvasWidth = canvas.width;
+const canvasHeight = canvas.height;
+const ctx = canvas.getContext('2d');
 
-let running = false;
+let started = false;
 
 let up = false;
 let down = false;
@@ -14,22 +12,13 @@ const playerWidth = 5;
 const playerHeight = 60;
 const playerVelocity = 4;
 
-function win(winner) {
-	running = false;
-	const message = winner === player ? 'You win!' : 'AI wins!';
-	document.querySelector('.message').innerHTML =
-		message + '<br /><button onclick="location.reload()">Restart</button>';
-}
-
 class Ball {
 	constructor(size, velocity) {
 		this.size = size;
 		this.velocity = -velocity;
 		this.verticalVelocity = 0;
-		this.x = app.renderer.width / 2;
-		this.y = app.renderer.height / 2;
-		this.g = new PIXI.Graphics();
-		app.stage.addChild(this.g);
+		this.x = canvasWidth / 2;
+		this.y = canvasHeight / 2;
 	}
 
 	update() {
@@ -43,11 +32,11 @@ class Ball {
 
 		if (this.x < 0) {
 			win(ai);
-		} else if (this.x > app.renderer.width) {
+		} else if (this.x > canvasWidth) {
 			win(player);
 		}
 
-		if (this.y <= 0 || this.y >= app.renderer.height) {
+		if (this.y <= 0 || this.y >= canvasHeight) {
 			this.verticalVelocity = -this.verticalVelocity;
 		}
 	}
@@ -66,11 +55,10 @@ class Ball {
 	}
 
 	draw() {
-		this.g.clear();
-
-		this.g.beginFill(0xffffff);
-		this.g.drawCircle(this.x, this.y, this.size);
-		this.g.endFill();
+		ctx.fillStyle = 'rgb(255, 255, 255)';
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+		ctx.fill();
 	}
 }
 
@@ -79,34 +67,29 @@ class Player {
 		this.width = width;
 		this.height = height;
 		this.velocity = velocity;
-		this.x = app.renderer.width / 5 - width;
-		this.y = app.renderer.height / 2 - height / 2;
-		this.g = new PIXI.Graphics();
-		app.stage.addChild(this.g);
+		this.x = canvasWidth / 5 - width;
+		this.y = canvasHeight / 2 - height / 2;
 	}
 
 	update() {
 		if (up && this.y >= 0) {
 			this.y -= this.velocity;
 		}
-		if (down && this.y + this.height <= app.renderer.height) {
+		if (down && this.y + this.height <= canvasHeight) {
 			this.y += this.velocity;
 		}
 	}
 
 	draw() {
-		this.g.clear();
-
-		this.g.beginFill(0xffffff);
-		this.g.drawRect(this.x, this.y, this.width, this.height);
-		this.g.endFill();
+		ctx.fillStyle = 'rgb(255, 255, 255)';
+		ctx.fillRect(this.x, this.y, this.width, this.height);
 	}
 }
 
 class AI extends Player {
 	constructor(width, height, velocity) {
 		super(width, height, velocity);
-		this.x = app.renderer.width - app.renderer.width / 5;
+		this.x = canvasWidth - canvasWidth / 5;
 		this.velocity = velocity - 1.7;
 	}
 
@@ -124,9 +107,10 @@ const player = new Player(playerWidth, playerHeight, playerVelocity);
 const ai = new AI(playerWidth, playerHeight, playerVelocity);
 
 window.addEventListener('keydown', (e) => {
-	if (!running) {
-		running = true;
+	if (!started) {
+		started = true;
 		document.querySelector('.message').innerText = '';
+		startGame();
 	}
 
 	if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
@@ -147,8 +131,12 @@ player.draw();
 ai.draw();
 ball.draw();
 
-app.ticker.add(() => {
-	if (running) {
+let gameLoop = null;
+
+function startGame() {
+	gameLoop = setInterval(() => {
+		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
 		player.update();
 		player.draw();
 
@@ -157,5 +145,13 @@ app.ticker.add(() => {
 
 		ball.update();
 		ball.draw();
-	}
-});
+	}, 1);
+}
+
+function win(winner) {
+	clearInterval(gameLoop);
+
+	const message = winner === player ? 'You win!' : 'AI wins!';
+	document.querySelector('.message').innerHTML =
+		message + '<br /><button onclick="location.reload()">Restart</button>';
+}
