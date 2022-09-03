@@ -1,6 +1,4 @@
 const canvas = document.getElementById('canvas');
-const canvasWidth = canvas.width;
-const canvasHeight = canvas.height;
 const ctx = canvas.getContext('2d');
 
 let started = false;
@@ -17,8 +15,8 @@ class Ball {
 		this.size = size;
 		this.velocity = -velocity;
 		this.verticalVelocity = 0;
-		this.x = canvasWidth / 2;
-		this.y = canvasHeight / 2;
+		this.x = canvas.width / 2;
+		this.y = canvas.height / 2;
 	}
 
 	update() {
@@ -32,11 +30,11 @@ class Ball {
 
 		if (this.x < 0) {
 			win(ai);
-		} else if (this.x > canvasWidth) {
+		} else if (this.x > canvas.width) {
 			win(player);
 		}
 
-		if (this.y <= 0 || this.y >= canvasHeight) {
+		if (this.y <= 0 || this.y >= canvas.height) {
 			this.verticalVelocity = -this.verticalVelocity;
 		}
 	}
@@ -67,15 +65,15 @@ class Player {
 		this.width = width;
 		this.height = height;
 		this.velocity = velocity;
-		this.x = canvasWidth / 5 - width;
-		this.y = canvasHeight / 2 - height / 2;
+		this.x = canvas.width / 5 - width;
+		this.y = canvas.height / 2 - height / 2;
 	}
 
 	update() {
 		if (up && this.y >= 0) {
 			this.y -= this.velocity;
 		}
-		if (down && this.y + this.height <= canvasHeight) {
+		if (down && this.y + this.height <= canvas.height) {
 			this.y += this.velocity;
 		}
 	}
@@ -89,7 +87,7 @@ class Player {
 class AI extends Player {
 	constructor(width, height, velocity) {
 		super(width, height, velocity);
-		this.x = canvasWidth - canvasWidth / 5;
+		this.x = canvas.width - canvas.width / 5;
 		this.velocity = velocity - 1.7;
 	}
 
@@ -135,7 +133,7 @@ let gameLoop = null;
 
 function startGame() {
 	gameLoop = setInterval(() => {
-		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 		player.update();
 		player.draw();
