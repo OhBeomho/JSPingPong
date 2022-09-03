@@ -129,26 +129,33 @@ player.draw();
 ai.draw();
 ball.draw();
 
-let gameLoop = null;
+let gameLoop;
+
+function animate() {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	player.update();
+	player.draw();
+
+	ai.update();
+	ai.draw();
+
+	ball.update();
+	ball.draw();
+
+	if (document.querySelector('.message').innerHTML) {
+		window.cancelAnimationFrame(gameLoop);
+		return;
+	}
+
+	gameLoop = window.requestAnimationFrame(animate);
+}
 
 function startGame() {
-	gameLoop = setInterval(() => {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-		player.update();
-		player.draw();
-
-		ai.update();
-		ai.draw();
-
-		ball.update();
-		ball.draw();
-	}, 1);
+	gameLoop = window.requestAnimationFrame(animate);
 }
 
 function win(winner) {
-	clearInterval(gameLoop);
-
 	const message = winner === player ? 'You win!' : 'AI wins!';
 	document.querySelector('.message').innerHTML =
 		message + '<br /><button onclick="location.reload()">Restart</button>';
