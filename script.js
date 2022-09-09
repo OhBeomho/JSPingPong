@@ -92,9 +92,9 @@ class AI extends Player {
 	}
 
 	update() {
-		if (this.y + this.height / 2 >= ball.y) {
+		if (this.y + this.height / 2 >= ball.y && this.y >= 0) {
 			this.y -= this.velocity;
-		} else {
+		} else if (this.y + this.height / 2 <= ball.y && this.y + this.height <= canvas.height) {
 			this.y += this.velocity;
 		}
 	}
