@@ -2,6 +2,7 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 let started = false;
+let gameOver = false;
 
 let up = false;
 let down = false;
@@ -104,25 +105,24 @@ const ball = new Ball(4, 3);
 const player = new Player(playerWidth, playerHeight, playerVelocity);
 const ai = new AI(playerWidth, playerHeight, playerVelocity);
 
+ctx.fillStyle = 'white';
+ctx.font = '30px Segoe UI Black';
+ctx.fillText('Press any key to start', 10, 30);
+ctx.font = '20px Segoe UI Semibold';
+ctx.fillText('A, D or Arrow up, Arrow down - Move', 10, 60);
+
 window.addEventListener('keydown', (e) => {
 	if (!started) {
 		started = true;
-		document.querySelector('.message').innerText = '';
 		startGame();
 	}
 
-	if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
-		up = true;
-	} else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') {
-		down = true;
-	}
+	if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') up = true;
+	else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') down = true;
 });
 window.addEventListener('keyup', (e) => {
-	if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
-		up = false;
-	} else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') {
-		down = false;
-	}
+	if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') up = false;
+	else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') down = false;
 });
 
 player.draw();
@@ -143,7 +143,7 @@ function animate() {
 	ball.update();
 	ball.draw();
 
-	if (document.querySelector('.message').innerHTML) {
+	if (gameOver) {
 		window.cancelAnimationFrame(gameLoop);
 		return;
 	}
@@ -156,7 +156,24 @@ function startGame() {
 }
 
 function win(winner) {
+	gameOver = true;
 	const message = winner === player ? 'You win!' : 'AI wins!';
-	document.querySelector('.message').innerHTML =
-		message + '<br /><button onclick="location.reload()">Restart</button>';
+
+	ctx.fillStyle = 'white';
+	ctx.strokeStyle = 'black';
+
+	ctx.font = '30px Segoe UI Black';
+	ctx.fillText('GAME OVER', 10, 30);
+	ctx.font = '20px Segoe UI Semibold';
+	ctx.fillText(message, 10, 60);
+
+	ctx.font = '30px Segoe UI Black';
+	ctx.strokeText('GAME OVER', 10, 30);
+	ctx.font = '20px Segoe UI Semibold';
+	ctx.strokeText(message, 10, 60);
+
+	const restartButton = document.createElement('button');
+	restartButton.innerText = 'Restart';
+	restartButton.addEventListener('click', () => location.reload());
+	document.body.appendChild(restartButton);
 }
